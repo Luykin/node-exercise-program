@@ -19,7 +19,18 @@ function newToken(data) {
     });
     return token
 }
+
+function verifyToken(token) {
+    let user = false
+    jwt.verify(token, secret, function(err, decoded) {
+        if (err) {} else {
+            user = decoded;
+        }
+    });
+    return user;
+}
 module.exports = {
     parameterVerification,
-    newToken
+    newToken,
+    verifyToken
 }

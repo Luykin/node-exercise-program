@@ -4,82 +4,126 @@ const utilRouter = require('../util/router');
 const mode = require('../mysql/mode');
 const CryptoJS = require("crypto-js");
 const statusCode = require('../util/statusCode');
+const middleware = require('./middleware');
 /* GET users listing. */
 router.get('/', function(req, res, next) {
     res.send('respond with a resource');
 });
 // 用户注册
-router.post('/register', function(req, res, next) {
-    const mustParameter = ['userName', 'userPassword']
-    if (utilRouter.parameterVerification(req.body, mustParameter)) {
-        const reqBody = req.body;
+router.post('/register', (req, res, next) => {
+    return middleware.necessaryParameters(req, res, next, ['userName', 'userPassword']);
+}, (req, res, next) => {
+    const reqBody = req.body;
+    reqBody.userPassword = CryptoJS.MD5(reqBody.userPassword).toString()
+    mode.User.findOrCreate({
+            where: {
+                userName: req.body.userName
+            },
+            defaults: reqBody
+        })
+        .then((data) => {
+            if (data[1]) {
+                const ret = data[0].dataValues;
+                ret.token = utilRouter.newToken({
+                    id: ret.id
+                });
+                delete ret.userPassword;
+                delete ret.id;
+                res.send(ret);
+            } else {
+                res.status(422).send(statusCode[422]);
+            }
+        })
+        .catch((err) => {
+            console.log(err)
+            res.sendStatus(500);
+        })
+});
+// 用户登录
+router.post('/login', (req, res, next) => {
+    return middleware.necessaryParameters(req, res, next, ['userName', 'userPassword']);
+}, (req, res, next) => {
+    const reqBody = req.body;
+    reqBody.userPassword = CryptoJS.MD5(reqBody.userPassword).toString()
+    mode.User.findAll({
+            where: {
+                userName: reqBody.userName,
+                userPassword: reqBody.userPassword
+            }
+        })
+        .then((data) => {
+            if (data[0]) {
+                const ret = data[0].dataValues;
+                ret.token = utilRouter.newToken({
+                    id: ret.id
+                });
+                delete ret.userPassword;
+                delete ret.id;
+                res.send(ret);
+            } else {
+                res.status(422).send(statusCode[422]);
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            res.sendStatus(500);
+        })
+});
+
+// 用户信息
+router.post('/info', (req, res, next) => {
+    return middleware.necessaryParameters(req, res, next, ['token']);
+}, (req, res, next) => {
+    return middleware.tokenValidity(req, res, next, req.body.token);
+}, (req, res, next) => {
+    mode.User.findAll({
+            where: {
+                id: req._tokenValidityId
+            }
+        })
+        .then((data) => {
+            if (data[0]) {
+                const ret = data[0].dataValues;
+                ret.token = utilRouter.newToken({
+                    id: ret.id
+                });
+                delete ret.userPassword;
+                delete ret.id;
+                res.send(ret);
+            } else {
+                res.status(422).send(statusCode[422]);
+            }
+        })
+        .catch((err) => {
+            res.sendStatus(500);
+        })
+})
+
+//更新用户信息
+router.post('/updata', (req, res, next) => {
+    return middleware.necessaryParameters(req, res, next, ['token']);
+}, (req, res, next) => {
+    return middleware.tokenValidity(req, res, next, req.body.token);
+}, (req, res, next) => {
+    const reqBody = req.body;
+    if (reqBody.userPassword) {
         reqBody.userPassword = CryptoJS.MD5(reqBody.userPassword).toString()
-        mode.User.findOrCreate({ where: { userName: req.body.userName }, defaults: reqBody })
-            .then((data) => {
-            	if (data[1]) {
-            		const ret = data[0]
-            		ret.token = utilRouter.newToken({userName: data[0].userName})
-            		delete ret.userPassword;
-            		console.log(ret);
-            		res.send(ret);
-            	} else {
-            		res.status(422).send(statusCode[422]);
-            	}
-            })
-            .catch((err) => {
-                console.log(err)
-                res.status(404).send(err);
-            })
+    }
+    delete reqBody.token;
+    if (Object.keys(reqBody).length > 0) {
+        mode.User.update(reqBody, {
+            where: {
+                id: req._tokenValidityId
+            }
+        }).then((data) => {
+            res.send(200);
+        }).catch((err) => {
+            res.sendStatus(500);
+        })
     } else {
         res.status(412).send(statusCode[412]);
     }
-});
-// // 用户登录
-// router.post('/login', function(req, res, next) {
-//     const mustParameter = ['user_name', 'user_password']
-//     if (utilRouter.parameterVerification(req.body, mustParameter)) {
-//         const nodeMysql = connection({
-//             database: 'nodeapp'
-//         })
-//         const reqBody = req.body;
-//         reqBody.user_password = CryptoJS.MD5(reqBody.user_password).toString()
-//         nodeMysql.table('user').where(reqBody).select()
-//             .then((data) => {
-//                 if (data.length > 0) {
-//                     delete data[0].user_password;
-//                     //jwt生成token
-//                     const token = jwt.sign({
-//                         'user_id': data[0].id
-//                     }, secret, {
-//                         expiresIn: 60 * 2 //秒到期时间
-//                     });
-//                     data[0].token = token;
-//                     res.status(200).send(data[0]);
-//                 } else {
-//                     res.status(404).send(statusCode[404]);
-//                 }
-//             })
-//             .catch((err) => {
-//                 res.status(404).send(err);
-//             })
-//     } else {
-//         res.status(412).send(statusCode[412]);
-//     }
-// });
+})
 
-// router.post('/info', function(req, res, next) {
-//     const mustParameter = ['token']
-//     if (utilRouter.parameterVerification(req.body, mustParameter)) {
-//         jwt.verify(req.body.token, secret, function(err, decoded) {
-//         	if (err) {
-//         		res.status(413).send(statusCode[413]);
-//         	} else {
-//         		res.status(200).send(decoded);
-//         	}
-//         });
-//     } else {
-//         res.status(412).send(statusCode[412]);
-//     }
-// })
 
 module.exports = router;
