@@ -16,6 +16,10 @@ const User = sequelize.define(
             type: Sequelize.STRING,
             allowNull: false
         },
+        realName: {
+            type: Sequelize.STRING,
+            allowNull: true
+        },
         userPassword: {
             type: Sequelize.STRING,
             allowNull: false
@@ -34,18 +38,52 @@ const User = sequelize.define(
         }
     }, {
         tableName: 'user',
-        timestamps: false,
+        timestamps: true,
         freezeTableName: true
     }
 );
-// User.sync({ alter: true });
-// sequelize.sync()
-//     .then((res) => {
-//         console.log('数据库同步成功')
-//     }).catch(error => {
-//         console.log(error)
-//     })
+const Article = sequelize.define(
+    'article', {
+        title: {
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        content: {
+            type: Sequelize.STRING,
+            allowNull: true
+        }
+    }, {
+        tableName: 'article',
+        timestamps: true,
+        freezeTableName: true
+    });
+const UserArticle = sequelize.define(
+    'UserArticle', {
+        status: {
+            type: Sequelize.STRING,
+            allowNull: true
+        },
+    })
+
+Article.belongsTo(User);
+User.hasMany(Article, {as: 'originalArticle'})
+
+Article.belongsToMany(User, {
+    through: 'UserArticle',
+    as: 'collector'
+});
+User.belongsToMany(Article, {
+    through: 'UserArticle',
+    as: 'collect_articles'
+});
+// user.addArticle(article, { status: 'started' })
+// User.sync({alter:true})
+// Article.sync({alter:true})
+// sequelize.sync() 
+// console.log(sequelize.modelManager.models)
 module.exports = {
     User,
+    Article,
+    UserArticle,
     sequelize
 };

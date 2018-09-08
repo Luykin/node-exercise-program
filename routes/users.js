@@ -6,9 +6,9 @@ const CryptoJS = require("crypto-js");
 const statusCode = require('../util/statusCode');
 const middleware = require('./middleware');
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-    res.send('respond with a resource');
-});
+// router.get('/', function(req, res, next) {
+//     res.send('respond with a resource');
+// });
 // 用户注册
 router.post('/register', (req, res, next) => {
     return middleware.necessaryParameters(req, res, next, ['userName', 'userPassword']);
@@ -22,6 +22,7 @@ router.post('/register', (req, res, next) => {
             defaults: reqBody
         })
         .then((data) => {
+            // console.log(data.getDataValue())
             if (data[1]) {
                 const ret = data[0].dataValues;
                 ret.token = utilRouter.newToken({
@@ -49,10 +50,18 @@ router.post('/login', (req, res, next) => {
             where: {
                 userName: reqBody.userName,
                 userPassword: reqBody.userPassword
-            }
+            },
+            include: [{
+                model: mode.Article,
+                as: 'originalArticle'
+            }, {
+                model: mode.Article,
+                as: 'collect_articles'
+            }]
         })
         .then((data) => {
             if (data[0]) {
+                // console.log(data[0])
                 const ret = data[0].dataValues;
                 ret.token = utilRouter.newToken({
                     id: ret.id
@@ -78,8 +87,12 @@ router.post('/info', (req, res, next) => {
 }, (req, res, next) => {
     mode.User.findAll({
             where: {
-                id: req._tokenValidityId
-            }
+                id: req._tokenValidityId,
+            },
+            include: [{
+                model: mode.Article,
+                as: 'article'
+            }]
         })
         .then((data) => {
             if (data[0]) {
@@ -114,7 +127,8 @@ router.post('/updata', (req, res, next) => {
         mode.User.update(reqBody, {
             where: {
                 id: req._tokenValidityId
-            }
+            },
+            fields: ['userPassword', 'userInfo', 'userIcon', 'realName']
         }).then((data) => {
             res.send(200);
         }).catch((err) => {
@@ -123,6 +137,33 @@ router.post('/updata', (req, res, next) => {
     } else {
         res.status(412).send(statusCode[412]);
     }
+})
+
+// 收藏文章
+router.post('/collect', (req, res, next) => {
+    return middleware.necessaryParameters(req, res, next, ['token', 'articleId']);
+}, (req, res, next) => {
+    return middleware.tokenValidity(req, res, next, req.body.token);
+}, (req, res, next) => {
+    const reqBody = req.body;
+    mode.UserArticle.findOrCreate({
+            where: {
+                userId: req._tokenValidityId,
+                articleId: parseInt(reqBody.articleId)
+            },
+            defaults: {
+                userId: req._tokenValidityId,
+                articleId: parseInt(reqBody.articleId)
+            }
+        })
+        .then((data) => {
+            console.log(data);
+            res.send(data);
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send(err);
+        })
 })
 
 
