@@ -8,7 +8,7 @@ const sequelize = new Sequelize(
         'host': 'localhost', // 数据库服务器ip
         'port': 3306
     }
-);
+    );
 
 const User = sequelize.define(
     'user', {
@@ -28,6 +28,23 @@ const User = sequelize.define(
             type: Sequelize.STRING,
             allowNull: true
         },
+        userTencent: {
+            type: Sequelize.STRING,
+            allowNull: true
+        },
+        userWeChat: {
+            type: Sequelize.STRING,
+            allowNull: true
+        },
+        userGihub: {
+            type: Sequelize.STRING,
+            allowNull: true
+        },
+        userGrade: {
+            type: Sequelize.INTEGER,
+            allowNull: true,
+            defaultValue: 0
+        },
         userInfo: {
             type: Sequelize.STRING,
             allowNull: true
@@ -41,7 +58,7 @@ const User = sequelize.define(
         timestamps: true,
         freezeTableName: true
     }
-);
+    );
 const Article = sequelize.define(
     'article', {
         title: {
@@ -66,7 +83,9 @@ const UserArticle = sequelize.define(
     })
 
 Article.belongsTo(User);
-User.hasMany(Article, {as: 'originalArticle'})
+User.hasMany(Article, {
+    as: 'originalArticle'
+})
 
 Article.belongsToMany(User, {
     through: 'UserArticle',
@@ -76,8 +95,8 @@ User.belongsToMany(Article, {
     through: 'UserArticle',
     as: 'collect_articles'
 });
-// user.addArticle(article, { status: 'started' })
 // User.sync({alter:true})
+// UserArticle.sync({alter:true})
 // Article.sync({alter:true})
 // sequelize.sync() 
 // console.log(sequelize.modelManager.models)

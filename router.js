@@ -4,7 +4,7 @@ var usersRouter = require('./routes/users');
 var articleRouter = require('./routes/article');
 
 const route = app => {
-	app.use('/', indexRouter);
+	app.use('/index', indexRouter);
 	app.use('/users', usersRouter);
 	app.use('/article', articleRouter);
 }

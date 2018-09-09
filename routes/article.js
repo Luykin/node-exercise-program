@@ -9,19 +9,19 @@ const middleware = require('./middleware');
 // 获取文章列表
 router.get('/', (req, res, next) => {
 	mode.Article.findAndCount({
-			offset: 0,
-			limit: 10,
-			include: [{
-				model: mode.User
-			}]
-		})
-		.then((data) => {
-			res.status(200).send(data);
-		})
-		.catch((err) => {
-			console.log(err)
-			res.status(500).send(err);
-		})
+		offset: 0,
+		limit: 10,
+		include: [{
+			model: mode.User
+		}]
+	})
+	.then((data) => {
+		res.status(200).send(data);
+	})
+	.catch((err) => {
+		console.log(err)
+		res.status(500).send(err);
+	})
 });
 
 //增加文章
@@ -31,17 +31,17 @@ router.post('/add', (req, res, next) => {
 	return middleware.tokenValidity(req, res, next, req.body.token);
 }, (req, res, next) => {
 	mode.Article.create({
-			title: req.body.title,
-			content: req.body.content,
-			userId: req._tokenValidityId,
-		})
-		.then((data) => {
-			res.send(data);
-		})
-		.catch((err) => {
-			console.log(err)
-			res.status(500).send(err);
-		})
+		title: req.body.title,
+		content: req.body.content,
+		userId: req._tokenValidityId,
+	})
+	.then((data) => {
+		res.send(data);
+	})
+	.catch((err) => {
+		console.log(err)
+		res.status(500).send(err);
+	})
 });
 
 module.exports = router;
