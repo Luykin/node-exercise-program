@@ -45,6 +45,10 @@ const User = sequelize.define(
             allowNull: true,
             defaultValue: 0
         },
+        userBackground: {
+            type: Sequelize.STRING,
+            allowNull: true
+        },
         userInfo: {
             type: Sequelize.STRING,
             allowNull: true

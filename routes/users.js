@@ -130,7 +130,7 @@ router.post('/updata', (req, res, next) => {
             where: {
                 id: req._tokenValidityId
             },
-            fields: ['userPassword', 'userInfo', 'userIcon', 'realName', 'userTencent', 'userWeChat', 'userGihub']
+            fields: ['userPassword', 'userInfo', 'userIcon', 'realName', 'userTencent', 'userWeChat', 'userGihub', 'userBackground']
         }).then((data) => {
             res.send(200);
         }).catch((err) => {
