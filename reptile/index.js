@@ -1,28 +1,22 @@
 const puppeteer = require('puppeteer');
-const mode = require('../mysql/mode');
-// const schedule = require('node-schedule');
 
-// const time = schedule.scheduleJob('0/10 * * * * ? *', function(fireDate) {
-//     console.log('haha' + fireDate)
-// });
-
-const spider = async() => {
+const spider = (url, className) => {
+  return (async() => {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
-    await page.goto('https://www.toutiao.com/');
-    const dimensions = await page.evaluate(() => {
-        const ret = []
-        const list = document.getElementsByClassName('title-box')
-        Array.from(list).forEach((item) => {
-            ret.push(item.firstChild.text)
-        })
+    await page.goto(url);
+    const dimensions = await page.evaluate((className) => {
+      return Array.from(document.querySelectorAll(className)).map((item) => {
         return {
-            html: ret,
-            deviceScaleFactor: window.devicePixelRatio
+          html: item.innerHTML,
+          src: item.src || null,
+          href: item.href || null,
+          dataset: item.item || null
         }
-    });
+      })
+    }, className);
     await browser.close();
     return dimensions
-}
-
-module.exports = spider;
+  })();
+};
+module.exports = spider

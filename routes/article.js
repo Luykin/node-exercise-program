@@ -10,7 +10,7 @@ const middleware = require('./middleware');
 router.get('/', (req, res, next) => {
 	mode.Article.findAndCount({
 		offset: 0,
-		limit: 10,
+		limit: 15,
 		include: [{
 			model: mode.User
 		}]
