@@ -127,4 +127,9 @@ function onListening() {
         'port ' + addr.port;
     debug('Listening on ' + bind);
 }
+const schedule = require('node-schedule');
+console.log(123)
+const time = schedule.scheduleJob('0 * * * * *', function(fireDate) {
+    console.log('haha' + fireDate)
+});
 module.exports = app;

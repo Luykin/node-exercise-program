@@ -102,7 +102,7 @@ User.belongsToMany(Article, {
 // User.sync({alter:true})
 // UserArticle.sync({alter:true})
 // Article.sync({alter:true})
-// sequelize.sync() 
+// sequelize.sync()
 // console.log(sequelize.modelManager.models)
 module.exports = {
     User,
