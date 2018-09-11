@@ -53,10 +53,16 @@ router.post('/login', (req, res, next) => {
         },
         include: [{
             model: mode.Article,
-            as: 'originalArticle'
+            as: 'originalArticle',
+            attributes: {
+                exclude: ['content']
+            }
         }, {
             model: mode.Article,
-            as: 'collect_articles'
+            as: 'collect_articles',
+            attributes: {
+                exclude: ['content']
+            }
         }],
         attributes: {
             exclude: ['userPassword']
@@ -92,7 +98,16 @@ router.post('/info', (req, res, next) => {
         },
         include: [{
             model: mode.Article,
-            as: 'article'
+            as: 'originalArticle',
+            attributes: {
+                exclude: ['content']
+            }
+        }, {
+            model: mode.Article,
+            as: 'collect_articles',
+            attributes: {
+                exclude: ['content']
+            }
         }],
         attributes: {
             exclude: ['userPassword']

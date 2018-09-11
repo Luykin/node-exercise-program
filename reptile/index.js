@@ -6,14 +6,25 @@ const spider = (url, className) => {
     const page = await browser.newPage();
     await page.goto(url);
     const dimensions = await page.evaluate((className) => {
-      return Array.from(document.querySelectorAll(className)).map((item) => {
-        return {
-          html: item.innerHTML,
-          src: item.src || null,
-          href: item.href || null,
-          dataset: item.item || null
+      let classNameList = className.split(',')
+      let ret = []
+      for(let i = 0; i< classNameList.length; i++) {
+        const documentNodeList = document.querySelectorAll(classNameList[i])
+        if (documentNodeList.length > 0) {
+          ret = Array.from(documentNodeList).map((item) => {
+            return {
+              html: item.innerHTML,
+              src: item.src || null,
+              href: item.href || null,
+              dataset: item.item || null
+            }
+          })
+          break;
+        } else {
+          continue;
         }
-      })
+      }
+      return ret
     }, className);
     await browser.close();
     return dimensions

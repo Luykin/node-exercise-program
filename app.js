@@ -131,53 +131,34 @@ var http = require('http');
   debug('Listening on ' + bind);
 }
 
-
-
-if (process.env.NODE_APP_INSTANCE === '0') {
-  const time = schedule.scheduleJob('0 0 * * * *', function(fireDate) {
-    (async () => {
-      let list = await spider('https://www.toutiao.com/ch/news_hot/', '.title-box a')
-      list = list.slice(0, 3)
-      for(let i=0; i<list.length; i++){
-        const result = await spider(list[i].href, 'article')
-        // console.log(result[0].html)
-        try {
-         const moderet = await mode.Article.create({
-            title: list[i].html,
-            content: result[0].html,
-            userId: 1,
-          })
-        } catch (e) {
-          console.log(e)
+const time = schedule.scheduleJob('0 0 * * * *', function(fireDate) {
+  (async() => {
+    console.log('__________抓取开始__________' + fireDate)
+    let list = await spider('https://www.toutiao.com/ch/news_hot/', ".title-box[ga_event='article_title_click'] a")
+    list = list.slice(0, 3)
+    try {
+      await mode.Article.destroy({
+        where:{
+          userId: 1
         }
+      })
+    } catch(e) {
+      console(e)
+    }
+    for (let i = 0; i < list.length; i++) {
+      let result = await spider(list[i].href, 'article, .article-box')
+      try {
+        const moderet = await mode.Article.create({
+          title: list[i].html || null,
+          content: result[0].html || null,
+          userId: 1,
+        })
+      } catch (e) {
+        console.log(e)
       }
-    })()
-    // spider('https://www.toutiao.com/ch/news_hot/', '.title-box a')
-    // .then((res) => {
-    //   if (res && res.length > 0) {
-    //     const list = res.slice(0, 3)
-    //     (async () => {
-    //       list.forEach((item) => {
-    //         const result = await spider(item.href, 'article')
-    //         console.log(result[0].html)
-    //         console.log(item.html)
-    //         // mode.Article.create({
-    //         //   title: item.html,
-    //         //   content: data[0].html,
-    //         //   userId: 1,
-    //         // })
-    //         // .then((data) => {})
-    //         // .catch((err) => {
-    //         //   console.log(err)
-    //         // })
-    //       })
-    //     })();
-    //   }
-    // })
-    // .catch((err) => {
-    //   console.log(err)
-    // })
-  });
-}
+    }
+    console.log('__________抓取结束__________' + fireDate)
+  })()
+});
 
 module.exports = app;
