@@ -116,9 +116,9 @@ router.post('/info', (req, res, next) => {
     .then((data) => {
         if (data[0]) {
             const ret = data[0].dataValues;
-            ret.token = utilRouter.newToken({
-                id: ret.id
-            });
+            // ret.token = utilRouter.newToken({
+            //     id: ret.id
+            // });
             res.send(ret);
         } else {
             res.status(422).send(statusCode[422]);
@@ -174,9 +174,12 @@ router.post('/collect', (req, res, next) => {
         }
     })
     .then((data) => {
+        // console.log(data)
         if (data[1]) {
+            console.log('fanhui -1')
             res.send(200);
         } else {
+            console.log('fanhui -2')
             res.status(422).send(statusCode[422]);
         }
     })
