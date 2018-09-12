@@ -1,10 +1,10 @@
 const spider = require('./index');
 const mode = require('../mysql/mode');
 
-const news = (fireDate, num, userId) => {
+const news = (fireDate, num, userId, url) => {
 	(async() => {
 		console.log('__________抓取头条新闻开始__________' + fireDate)
-		let list = await spider('https://www.toutiao.com/ch/news_hot/', ".title-box[ga_event='article_title_click'] a")
+		let list = await spider(url , ".title-box[ga_event='article_title_click'] a")
 		list = list.slice(0, num)
 		try {
 			await mode.Article.destroy({
@@ -13,7 +13,7 @@ const news = (fireDate, num, userId) => {
 				}
 			})
 		} catch(e) {
-			console(e)
+			console.log(e)
 		}
 		for (let i = 0; i < list.length; i++) {
 			let result = await spider(list[i].href, 'article, .article-box')

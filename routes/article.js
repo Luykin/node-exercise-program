@@ -24,7 +24,6 @@ router.get('/', (req, res, next) => {
 	})
 });
 
-//增加文章
 router.post('/add', (req, res, next) => {
 	return middleware.necessaryParameters(req, res, next, ['token', 'title', 'content']);
 }, (req, res, next) => {
@@ -44,4 +43,9 @@ router.post('/add', (req, res, next) => {
 	})
 });
 
+// router.post('/user_article', (req, res, next)=> {
+// 	return middleware.necessaryParameters(req, res, next, ['userId']);
+// }, (req, res, next) => {
+// 	mode.Article.
+// })
 module.exports = router;

@@ -6,12 +6,6 @@ const sequelize = new Sequelize(
     {
         'dialect': 'mysql', // 数据库使用mysql
         'host': 'localhost', // 数据库服务器ip
-        'dialectOptions': {
-            charset: "utf8mb4",
-            collate: "utf8mb4_unicode_ci",
-            supportBigNumbers: true,
-            bigNumberStrings: true
-        },
         'port': 3306
     }
     );

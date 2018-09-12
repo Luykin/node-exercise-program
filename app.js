@@ -106,9 +106,10 @@ function onListening() {
         'port ' + addr.port;
     debug('Listening on ' + bind);
 }
-
-const time = schedule.scheduleJob('0 0 * * * *', function(fireDate) {
-    spiderBusiness.news(fireDate, 5, 1) // 抓取5条新闻到userid=1的用户中
+const time = schedule.scheduleJob('0 */2 * * * *', function(fireDate) {
+  // console.log(process.env)
+    // spiderBusiness.news(fireDate, 5, 1, 'https://www.toutiao.com/ch/news_hot/') // 抓取5条新闻到userid=1的用户中
+    // spiderBusiness.news(fireDate, 5, 2, 'https://www.toutiao.com/ch/news_game/') // 抓取5条游戏新闻到userid=2的用户中
 });
 
 module.exports = app;
